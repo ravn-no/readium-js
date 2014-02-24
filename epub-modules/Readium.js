@@ -6,6 +6,8 @@ define(['require', 'module', 'jquery', 'underscore', 'readerView', 'epub-fetch',
 
     var Readium = function(readiumOptions, readerOptions){
 
+        window.URI = URI;
+
         var self = this;
 
         var _currentResourceFetcher;
