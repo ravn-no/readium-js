@@ -77,10 +77,14 @@ var requirejs = {
             name: 'URIjs',
             location: 'lib/URIjs',
             main: 'URI'
+        },
+        {
+            name: 'GesturesHandler',
+            location: 'epub-modules/epub-ui/src/models',
+            main: 'gestures'
         }
 
     ],
-
 
     shim: {
 

@@ -1,65 +1,105 @@
 define(['jquery','jquery_hammer','hammer'], function($,jqueryHammer,Hammer){
 
-    var gesturesHandler = function(reader,viewport){
+    var GesturesHandler = function(reader, $touchableArea){
 
-        var nextPage = function(){
-            reader.openPageRight();
+        _.extend(this, Backbone.Events);
+
+        var self = this;
+        //these events are not fired by default and have to be attached to the reader by
+        //gesture interpreting library - reference implementation in readium.js epub-ui module
+
+        GesturesHandler.Events = {
+            TOUCH_SWIPELEFT: "swipeleft",
+            TOUCH_SWIPERIGHT: "swiperight",
+            TOUCH_TAP: "tap",
+            TOUCH_DOUBLETAP: "doubletap",
+            TOUCH_HOLD: "hold"
         };
 
-        var prevPage = function(){
-            reader.openPageLeft();
-        };
+        var hammerOptions = {stop_browser_behavior: false, prevent_mouseevents: true};
 
-        this.initialize= function(){
+        reader.on(ReadiumSDK.Events.CONTENT_DOCUMENT_LOADED, function (iframe, s) {
+            //set hammer's document root
+            Hammer.DOCUMENT = iframe[0].contentDocument.documentElement;
+            //hammer's internal touch events need to be redefined? (doesn't work without)
+            Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_MOVE, Hammer.detection.detect);
+            Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_END, Hammer.detection.detect);
+            //delete Hammer.defaults.stop_browser_behavior.userSelect;
+            //set up the hammer gesture events
 
-            reader.on(ReadiumSDK.Events.CONTENT_DOCUMENT_LOADED, function(iframe,s) {
-                //set hammer's document root
-                Hammer.DOCUMENT = iframe.contents();
-                //hammer's internal touch events need to be redefined? (doesn't work without)
-                Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_MOVE, Hammer.detection.detect);
-                Hammer.event.onTouch(Hammer.DOCUMENT, Hammer.EVENT_END, Hammer.detection.detect);
-
-                //set up the hammer gesture events
-                //swiping handlers
-                var swipingOptions = {prevent_mouseevents: true};
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swipeleft", function() {
-                    nextPage();
-                });
-                Hammer(Hammer.DOCUMENT,swipingOptions).on("swiperight", function() {
-                    prevPage();
-                });
-
-                //remove stupid ipad safari elastic scrolling
-                //TODO: test this with reader ScrollView and FixedView
-                $(Hammer.DOCUMENT).on(
-                    'touchmove',
-                    function(e) {
-                        //hack: check if we are not dealing with a scrollview
-                        if(iframe.height()<=iframe.parent().height()){
-                            e.preventDefault();
-                        }
-                    }
-                );
+            //swiping handlers
+            Hammer(Hammer.DOCUMENT, hammerOptions).on("swipeleft.Hammer", function (e) {
+                self.trigger(GesturesHandler.Events.TOUCH_SWIPELEFT, e);
             });
 
-            //remove stupid ipad safari elastic scrolling (improves UX for gestures)
+            Hammer(Hammer.DOCUMENT, hammerOptions).on("swiperight.Hammer", function (e) {
+                self.trigger(GesturesHandler.Events.TOUCH_SWIPERIGHT, e);
+            });
+
+            //touch handlers
+            Hammer(Hammer.DOCUMENT, hammerOptions).on("tap.Hammer", function (e) {
+                self.trigger(GesturesHandler.Events.TOUCH_TAP, e);
+            });
+
+            Hammer(Hammer.DOCUMENT, hammerOptions).on("doubletap.Hammer", function (e) {
+                self.trigger(GesturesHandler.Events.TOUCH_DOUBLETAP, e);
+            });
+
+            Hammer(Hammer.DOCUMENT, hammerOptions).on("hold.Hammer", function (e) {
+                self.trigger(GesturesHandler.Events.TOUCH_HOLD, e);
+            });
+
+            //remove stupid ipad safari elastic scrolling
             //TODO: test this with reader ScrollView and FixedView
-            $(viewport).on(
-                'touchmove',
-                function(e) {
-                    e.preventDefault();
+            $(Hammer.DOCUMENT).on(
+                'touchmove.Hammer',
+                function (e) {
+                    //hack: check if we are not dealing with a scroll view
+                    var viewType = reader.viewType();
+                    if (   viewType !== ReadiumSDK.Views.ReaderView.VIEW_TYPE_SCROLLED_DOC
+                        && viewType !== ReadiumSDK.Views.ReaderView.VIEW_TYPE_SCROLLED_CONTINUOUS ) {
+
+                        e.preventDefault();
+                    }
                 }
             );
+        });
 
-            //handlers on viewport
-            $(viewport).hammer().on("swipeleft", function() {
-                nextPage();
-            });
-            $(viewport).hammer().on("swiperight", function() {
-                prevPage();
-            });
-        };
+        //swiping handlers
+        $touchableArea.hammer(hammerOptions).on("swipeleft.Hammer", function (e) {
+            self.trigger(GesturesHandler.Events.TOUCH_SWIPELEFT, e);
 
+        });
+
+        $touchableArea.hammer(hammerOptions).on("swiperight.Hammer", function (e) {
+            self.trigger(GesturesHandler.Events.TOUCH_SWIPERIGHT, e);
+
+        });
+
+        //touch handlers
+        $touchableArea.hammer(hammerOptions).on("tap.Hammer", function (e) {
+            self.trigger(GesturesHandler.Events.TOUCH_TAP, e);
+        });
+
+        $touchableArea.hammer(hammerOptions).on("doubletap.Hammer", function (e) {
+            self.trigger(GesturesHandler.Events.TOUCH_DOUBLETAP, e);
+        });
+
+        $touchableArea.hammer(hammerOptions).on("hold.Hammer", function (e) {
+            self.trigger(GesturesHandler.Events.TOUCH_HOLD, e);
+        });
+
+        //remove stupid ipad safari elastic scrolling (improves UX for gestures)
+        //TODO: test this with reader ScrollView and FixedView
+        $touchableArea.on(
+            'touchmove.Hammer',
+            function(e) {
+                e.preventDefault();
+            }
+        );
     };
-    return gesturesHandler;
+
+
+    return GesturesHandler;
 });
+

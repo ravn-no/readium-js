@@ -1,5 +1,5 @@
 
-define(['require', 'module', 'console_shim', 'jquery', 'underscore', 'readerView', 'epub-fetch', 'epub-model/package_document_parser', 'epub-fetch/iframe_zip_loader', 'URIjs', 'epub-ui/gestures'],
+define(['require', 'module', 'console_shim', 'jquery', 'underscore', 'readerView', 'epub-fetch', 'epub-model/package_document_parser', 'epub-fetch/iframe_zip_loader', 'URIjs', 'GesturesHandler'],
     function (require, module, console_shim, $, _, readerView, PublicationFetcher, PackageParser, IframeZipLoader, URI, GesturesHandler) {
 
     //hack to make URI object global for readers consumption.
@@ -28,10 +28,6 @@ define(['require', 'module', 'console_shim', 'jquery', 'underscore', 'readerView
         readerOptions.iframeLoader = _iframeZipLoader;
 
         this.reader = new ReadiumSDK.Views.ReaderView(readerOptions);
-
-        var _gesturesHandler = new GesturesHandler(this.reader,renderingViewport);
-        _gesturesHandler.initialize();
-
 
         this.openPackageDocument = function(bookRoot, callback, openPageRequest)  {
 
