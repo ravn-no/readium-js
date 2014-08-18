@@ -39,7 +39,8 @@ define(['require', 'text!version.json', 'console_shim', 'jquery', 'underscore', 
             readerOptions.iframeLoader = new IframeZipLoader(ReadiumSDK, function() { return _currentPublicationFetcher; }, { mathJaxUrl: readerOptions.mathJaxUrl });;
         }
         else{
-            readerOptions.iframeLoader = new ReadiumSDK.Views.IFrameLoader();
+            readerOptions.iframeLoader = new ReadiumSDK.Views.IFrameLoader(readiumOptions.contentDocumentPreprocess);
+            // RAVN: added readiumOptions.contentDocumentPreprocess (see EB-659)
         }
         
 
