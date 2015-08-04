@@ -1,0 +1,2 @@
+js/Readium.js
+    EB-659, added readiumOptions.contentDocumentPreprocess (see EB-659)
