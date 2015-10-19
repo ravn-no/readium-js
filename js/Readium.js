@@ -59,11 +59,14 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
 
         var jsLibRoot = readiumOptions.jsLibRoot;
 
-        if (!readiumOptions.useSimpleLoader){
-            readerOptions.iframeLoader = new IframeZipLoader(function() { return _currentPublicationFetcher; }, _contentDocumentTextPreprocessor);
-        }
-        else{
-            readerOptions.iframeLoader = new IframeLoader();
+        // only set the iframeLoader if a external iframeloader is _not_ provided.
+        if (!readerOptions.iframeLoader) {
+            if (!readiumOptions.useSimpleLoader){
+                readerOptions.iframeLoader = new IframeZipLoader(function() { return _currentPublicationFetcher; }, _contentDocumentTextPreprocessor);
+            }
+            else{
+                readerOptions.iframeLoader = new IframeLoader();
+            }
         }
 
         // Chrome extension and cross-browser cloud reader build configuration uses this scaling method across the board (no browser sniffing for Chrome)
