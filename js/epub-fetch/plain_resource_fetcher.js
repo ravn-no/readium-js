@@ -22,8 +22,8 @@ define(['jquery', 'URIjs', './discover_content_type'], function ($, URI, Content
 
         // INTERNAL FUNCTIONS
 
-        function fetchFileContents(pathRelativeToPackageRoot, readCallback, onerror) {
-            var fileUrl = self.resolveURI(pathRelativeToPackageRoot);
+        this.fetchFileContents = function(pathRelativeToPackageRoot, readCallback, onerror) {
+            var fileUrl = this.resolveURI(pathRelativeToPackageRoot);
 
             if (typeof pathRelativeToPackageRoot === 'undefined') {
                 throw 'Fetched file relative path is undefined!';
@@ -39,8 +39,7 @@ define(['jquery', 'URIjs', './discover_content_type'], function ($, URI, Content
             };
 
             xhr.send();
-        }
-
+        };
 
         // PUBLIC API
 
@@ -105,7 +104,7 @@ define(['jquery', 'URIjs', './discover_content_type'], function ($, URI, Content
                     });
                 };
             }
-            fetchFileContents(pathRelativeToPackageRoot, function (contentsArrayBuffer) {
+            this.fetchFileContents(pathRelativeToPackageRoot, function (contentsArrayBuffer) {
                 var blob = new Blob([contentsArrayBuffer], {
                     type: ContentTypeDiscovery.identifyContentTypeFromFileName(pathRelativeToPackageRoot)
                 });
