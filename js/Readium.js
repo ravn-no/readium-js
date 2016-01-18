@@ -164,8 +164,6 @@ define(['text!version.json', 'jquery', 'underscore', 'readium_shared_js/views/re
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function(){
                         
-                        if (this.readyState != 4) return;
-                        
                         var contentType = undefined;
                         
                         var success = xhr.status >= 200 && xhr.status < 300 || xhr.status === 304;
