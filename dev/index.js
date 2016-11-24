@@ -1,5 +1,5 @@
 
-require(["readium_shared_js/globalsSetup"], function () {
+require(["readium_shared_js/globalsSetup", "readium_shared_js/globals"], function (GlobalsSetup, Globals) {
     
     
     // TODO: unfortunately this is not a reliable method to discover AMD module availability with RequireJS, because:
@@ -54,7 +54,7 @@ require(["readium_shared_js/globalsSetup"], function () {
             openBookOptions: {}
         };
 
-  			Readium.getVersion(function(version){
+              Readium.getVersion(function(version){
 
             console.log(version);
 
@@ -121,7 +121,11 @@ require(["readium_shared_js/globalsSetup"], function () {
             // Debug check:
             //console.debug(JSON.stringify(window.navigator.epubReadingSystem, undefined, 2));
 
-            var prefix = (self.location && self.location.origin && self.location.pathname) ? (self.location.origin + self.location.pathname + "/..") : "";
+            var origin = window.location.origin;
+            if (!origin) {
+                origin = window.location.protocol + '//' + window.location.host;
+            }
+            var prefix = (self.location && self.location.pathname && origin) ? (origin + self.location.pathname + "/..") : "";
 
             var readerOptions =
             {
@@ -133,17 +137,23 @@ require(["readium_shared_js/globalsSetup"], function () {
 
             ReadiumSDK.on(ReadiumSDK.Events.PLUGINS_LOADED, function(reader) {
 
-                // readium built-in (should have been require()'d outside this scope)
+                Globals.logEvent("PLUGINS_LOADED", "ON", "dev/index.js");
+                
+                // legacy (should be undefined / null)
                 console.log(reader.plugins.annotations);
-                if (reader.plugins.annotations) {
-                    reader.plugins.annotations.initialize({annotationCSSUrl: readerOptions.annotationCSSUrl});
-                    reader.plugins.annotations.on("annotationClicked", function(type, idref, cfi, id) {
+                
+                // same as above, new implementation
+                console.log(reader.plugins.highlights);
+                
+                if (reader.plugins.highlights) {
+                    reader.plugins.highlights.initialize({annotationCSSUrl: readerOptions.annotationCSSUrl});
+                    reader.plugins.highlights.on("annotationClicked", function(type, idref, cfi, id) {
                         console.log("ANNOTATION CLICK: " + id);
-                        reader.plugins.annotations.removeHighlight(id);
+                        reader.plugins.highlights.removeHighlight(id);
                     });
-                    reader.plugins.annotations.on("textSelectionEvent", function() {
+                    reader.plugins.highlights.on("textSelectionEvent", function() {
                         console.log("ANNOTATION SELECT");
-                        reader.plugins.annotations.addSelectionHighlight(Math.floor((Math.random()*1000000)), "highlight");
+                        reader.plugins.highlights.addSelectionHighlight(Math.floor((Math.random()*1000000)), "highlight");
                     });
                 }
 
@@ -161,8 +171,10 @@ require(["readium_shared_js/globalsSetup"], function () {
 
                         var openPageRequest = undefined; //{idref: bookmark.idref, elementCfi: bookmark.contentCFI};
 
+                        var ebookURL = altBook_ ? "EPUB/epubReadingSystem" : "EPUB/internal_link.epub";
+
                         readium.openPackageDocument(
-                            altBook_ ? "EPUB/epubReadingSystem" : "EPUB/internal_link.epub",
+                            ebookURL,
                             function(packageDocument, options) {
                                 console.log(options.metadata.title);
                                 $('#title').text(options.metadata.title);
@@ -181,8 +193,10 @@ require(["readium_shared_js/globalsSetup"], function () {
 
                 var openPageRequest = undefined; //{idref: bookmark.idref, elementCfi: bookmark.contentCFI};
 
+                var ebookURL = "EPUB/epubReadingSystem"; 
+
                 readium.openPackageDocument(
-                    "EPUB/epubReadingSystem",
+                    ebookURL,
                     function(packageDocument, options) {
                         console.log(options.metadata.title);
                         $('#title').text(options.metadata.title);

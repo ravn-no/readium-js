@@ -68,19 +68,21 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
             
             var shouldConstructDomProgrammatically = getCurrentResourceFetcher().shouldConstructDomProgrammatically();
             if (shouldConstructDomProgrammatically) {
+                
+                console.log("shouldConstructDomProgrammatically...");
 
-                    getCurrentResourceFetcher().fetchContentDocument(attachedData, loadedDocumentUri,
-                        function (resolvedContentDocumentDom) {
-                            self._loadIframeWithDocument(iframe,
-                                attachedData,
-                                resolvedContentDocumentDom.documentElement.outerHTML,
-                                function () {
-                                    callback.call(caller, true, attachedData);
-                                });
-                        }, function (err) {
-                            callback.call(caller, false, attachedData);
-                        }
-                    );
+                getCurrentResourceFetcher().fetchContentDocument(attachedData, loadedDocumentUri,
+                    function (resolvedContentDocumentDom) {
+                        self._loadIframeWithDocument(iframe,
+                            attachedData,
+                            resolvedContentDocumentDom.documentElement.outerHTML,
+                            function () {
+                                callback.call(caller, true, attachedData);
+                            });
+                    }, function (err) {
+                        callback.call(caller, false, attachedData);
+                    }
+                );
             } else {
                 fetchContentDocument(loadedDocumentUri, function (contentDocumentHtml) {
                       if (!contentDocumentHtml) {
@@ -141,8 +143,23 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                         
                         // console.log(child_iframe.location);
                         
-                        var childSrc = child_iframe.frameElement.getAttribute("data-src");
+                        var childSrc = undefined;
+                        
+                        try{
+                            childSrc = child_iframe.frameElement.getAttribute("data-src");
+                        } catch(err) {
+                            // HTTP(S) cross-origin access?
+                            console.warn(err);
+                            continue;
+                        }
                         // console.log(childSrc);
+                        
+                        if (!childSrc) {
+                            if (child_iframe.frameElement.localName == "iframe") {
+                                console.error("IFRAME data-src missing?!");
+                            }
+                            continue;
+                        }
                             
                         // console.debug(attachedData);
                         var contentDocumentPathRelativeToPackage = attachedData.spineItem.href; 
@@ -192,8 +209,29 @@ define(['URIjs', 'readium_shared_js/views/iframe_loader', 'underscore', './disco
                 var mathJax = iframe.contentWindow.MathJax;
                 if (mathJax) {
                     
-                    mathJax.Hub.Config({SVG:{useFontCache:!mathJax.Hub.Browser.isFirefox}});
+                    console.log("MathJax VERSION: " + mathJax.cdnVersion + " // " + mathJax.fileversion + " // " + mathJax.version);
                     
+                    var useFontCache = true; // default in MathJax
+                    
+                    // Firefox fails to render SVG otherwise
+                    if (mathJax.Hub.Browser.isFirefox) {
+                        useFontCache = false;
+                    }
+                    
+                    // Chrome 49+ fails to render SVG otherwise
+                    // https://github.com/readium/readium-js/issues/138
+                    if (mathJax.Hub.Browser.isChrome) {
+                        useFontCache = false;
+                    }
+                    
+                    // Edge fails to render SVG otherwise
+                    // https://github.com/readium/readium-js-viewer/issues/394#issuecomment-185382196
+                    if (window.navigator.userAgent.indexOf("Edge") > 0) {
+                        useFontCache = false;
+                    }
+                    
+                    mathJax.Hub.Config({showMathMenu:false, messageStyle: "none", showProcessingMessages: true, SVG:{useFontCache:useFontCache}});
+                
                     // If MathJax is being used, delay the callback until it has completed rendering
                     var mathJaxCallback = _.once(callback);
                     
