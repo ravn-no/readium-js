@@ -182,52 +182,56 @@ define(['readium_shared_js/globals', 'text!version.json', 'jquery', 'underscore'
                 
                 // We don't use URI.is("absolute") here, as we really need HTTP(S) (excludes e.g. "data:" URLs)
                 if (ebookURL.indexOf("http://") == 0 || ebookURL.indexOf("https://") == 0) {
+
+            openPackageDocument_(ebookURL, callback, openPageRequest);
+                    // commented out section where request is sent to the server because of EB-1801
+                    openPackageDocument_(ebookURL, callback, openPageRequest);
+
+                    // var xhr = new XMLHttpRequest();
+                    // xhr.onreadystatechange = function(){
+
+                    //     if (this.readyState != 4) return;
                         
-                    var xhr = new XMLHttpRequest();
-                    xhr.onreadystatechange = function(){
+                    //     var contentType = undefined;
                         
-                        if (this.readyState != 4) return;
-                        
-                        var contentType = undefined;
-                        
-                        var success = xhr.status >= 200 && xhr.status < 300 || xhr.status === 304;
-                        if (success) {
+                    //     var success = xhr.status >= 200 && xhr.status < 300 || xhr.status === 304;
+                    //     if (success) {
                             
-                            var allResponseHeaders = '';
-                            if (xhr.getAllResponseHeaders) {
-                                allResponseHeaders = xhr.getAllResponseHeaders();
-                                if (allResponseHeaders) {
-                                    allResponseHeaders = allResponseHeaders.toLowerCase();
-                                } else allResponseHeaders ='';
-                                //console.debug(allResponseHeaders);
-                            }
+                    //         var allResponseHeaders = '';
+                    //         if (xhr.getAllResponseHeaders) {
+                    //             allResponseHeaders = xhr.getAllResponseHeaders();
+                    //             if (allResponseHeaders) {
+                    //                 allResponseHeaders = allResponseHeaders.toLowerCase();
+                    //             } else allResponseHeaders ='';
+                    //             //console.debug(allResponseHeaders);
+                    //         }
                             
-                            if (allResponseHeaders.indexOf("content-type") >= 0) {
-                                contentType = xhr.getResponseHeader("Content-Type") || xhr.getResponseHeader("content-type");
-                                if (!contentType) contentType = undefined;
+                    //         if (allResponseHeaders.indexOf("content-type") >= 0) {
+                    //             contentType = xhr.getResponseHeader("Content-Type") || xhr.getResponseHeader("content-type");
+                    //             if (!contentType) contentType = undefined;
                                 
-                                console.debug("CONTENT-TYPE: " + ebookURL + " ==> " + contentType);
-                            }
+                    //             console.debug("CONTENT-TYPE: " + ebookURL + " ==> " + contentType);
+                    //         }
                             
-                            var responseURL = xhr.responseURL;
-                            if (!responseURL) {
-                                if (allResponseHeaders.indexOf("location") >= 0) {
-                                    responseURL = xhr.getResponseHeader("Location") || xhr.getResponseHeader("location");
-                                }
-                            }
+                    //         var responseURL = xhr.responseURL;
+                    //         if (!responseURL) {
+                    //             if (allResponseHeaders.indexOf("location") >= 0) {
+                    //                 responseURL = xhr.getResponseHeader("Location") || xhr.getResponseHeader("location");
+                    //             }
+                    //         }
                             
-                            if (responseURL && responseURL !== ebookURL) {
-                                console.debug("REDIRECT: " + ebookURL + " ==> " + responseURL);
+                    //         if (responseURL && responseURL !== ebookURL) {
+                    //             console.debug("REDIRECT: " + ebookURL + " ==> " + responseURL);
     
-                                ebookURL = responseURL;
-                            }
-                        }
+                    //             ebookURL = responseURL;
+                    //         }
+                    //     }
                         
-                        openPackageDocument_(ebookURL, callback, openPageRequest, contentType);
-                    };
-                    xhr.open('HEAD', ebookURL, true);
-                    //xhr.responseType = 'blob';
-                    xhr.send(null); 
+                    //     openPackageDocument_(ebookURL, callback, openPageRequest, contentType);
+                    // };
+                    // xhr.open('HEAD', ebookURL, true);
+                    // //xhr.responseType = 'blob';
+                    // xhr.send(null); 
                 
                     return;
                 }
