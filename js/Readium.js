@@ -183,8 +183,6 @@ define(['readium_shared_js/globals', 'text!version.json', 'jquery', 'underscore'
                 // We don't use URI.is("absolute") here, as we really need HTTP(S) (excludes e.g. "data:" URLs)
                 if (ebookURL.indexOf("http://") == 0 || ebookURL.indexOf("https://") == 0) {
 
-            openPackageDocument_(ebookURL, callback, openPageRequest);
-                    // commented out section where request is sent to the server because of EB-1801
                     openPackageDocument_(ebookURL, callback, openPageRequest);
 
                     // var xhr = new XMLHttpRequest();
