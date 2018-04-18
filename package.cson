@@ -33,7 +33,7 @@
 
 name: "readium-js"
 
-version: "0.27.0"
+version: "0.30.0"
 
 engines:
     node: ">=4"
@@ -92,15 +92,14 @@ files: [
 dependencies:
 
     #"parallelshell": 'latest'
-    "concurrently": 'latest'
+    "concurrently": '^3.5.0'
 
-    "npm-run-all": 'latest'
+    "npm-run-all": '^4.1.2'
 
-
-    "opener": 'latest'
+    "opener": '^1.4.3'
 
     #"http-server": 'latest'
-    "http-server": 'danielweck/http-server'
+    "http-server": 'github:danielweck/http-server#master'
     # SEE: https://github.com/indexzero/http-server/issues/154
 
 
@@ -109,23 +108,23 @@ dependencies:
 # in "npm install --dev readium-js".
 devDependencies:
 
-    "crypto-js": 'latest'
+    "crypto-js": '^3.1.9-1'
 
-#    "zipjs": 'gildas-lormeau/zip.js'
-#    "zipjs": 'ryanackley/zip.js'
-    "zip-js": "danielweck/zip.js"
+#    "zipjs": 'github:gildas-lormeau/zip.js'
+#    "zipjs": 'github:ryanackley/zip.js'
+    "zip-js": 'github:danielweck/zip.js#master'
 
 # see readium-cfi-js:
 # "requirejs", "almond", "jquery"
 
 
-    "requirejs-text": 'latest'
+    "requirejs-text": '^2.0.15'
 
 # Below dependencies are only used for building tasks (above are runtime deps):
 
     # see readium-build-tools (in readium-cfi-js)
     # versionsMaker.js
-    "gift": 'latest'
+    "gift": '^0.10.1'
 
 # see readium-cfi-js:
 # "cson", "jshint", "glob", "rimraf", "mkdirp", "watch", "live-reload"
@@ -156,13 +155,9 @@ scripts:
 #=====================
     'prepare:local': '
 
-        npm outdated || echo outdated
+        (npm outdated || echo outdated)
         &&
-        npm install --no-save --only=prod
-        &&
-        npm install --no-save --only=dev
-        &&
-        npm update --no-save
+        npm install
         &&
         npm run prepare:local:common
     '
@@ -180,11 +175,9 @@ scripts:
 #=====================
     'prepare:yarn:local': '
 
-        yarn outdated || echo outdated
+        (yarn outdated || echo outdated)
         &&
         yarn install
-        &&
-        yarn upgrade
         &&
         yarn run prepare:local:common
     '
@@ -222,7 +215,7 @@ scripts:
 #=====================
     clean: '
 
-        yarn --version
+        (yarn --version || echo noyarn)
         &&
         node --version
         &&
@@ -477,6 +470,7 @@ scripts:
             -OPEN
             /dev/
             
+            -c-1
             -a 127.0.0.1
             -p 9090
             --cors
