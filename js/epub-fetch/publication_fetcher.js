@@ -47,8 +47,7 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
 
             // Non exploded EPUBs (i.e. zipped .epub documents) should be fetched in a programmatical manner:
             _shouldConstructDomProgrammatically = !isEpubExploded;
-            console.log("_shouldConstructDomProgrammatically INIT: " + _shouldConstructDomProgrammatically);
-            
+
             this.createResourceFetcher(isEpubExploded, function(resourceFetcher) {
     
                 //NOTE: _resourceFetcher == resourceFetcher
@@ -234,8 +233,6 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
                         _packageDocumentAbsoluteUrl = self._resourceFetcher.resolveURI(_packageFullPath);
                         
                         console.debug("PACKAGE: ");
-                        console.log(_packageFullPath);
-                        console.log(_packageDocumentAbsoluteUrl);
                         
                         if (packageFullPath && packageFullPath.charAt(0) != '/') {
                             packageFullPath = '/' + packageFullPath;
@@ -287,8 +284,6 @@ define(['jquery', 'URIjs', './markup_parser', './plain_resource_fetcher', './zip
                 // (we need to filter these out from the console output, as they are in fact false positives)
                 var optionalFetch = (pathRelativeToEpubRoot.indexOf("META-INF/com.apple.ibooks.display-options.xml") == 0)
                 || (pathRelativeToEpubRoot.indexOf("META-INF/encryption.xml") == 0);
-                    
-                console.log("MISSING: " + pathRelativeToEpubRoot);
                     
                 if (!optionalFetch) {
                     if (err) {
